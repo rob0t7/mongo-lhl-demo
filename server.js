@@ -6,6 +6,10 @@ const PORT = process.env.PORT || 8080
 
 const slug = require('slug')
 
+// Imports for File Storage
+const fs = require('fs')
+const csv = require('csv')
+
 // Express App server Dependencies
 const express        = require("express")
 const bodyParser     = require("body-parser")
@@ -27,18 +31,33 @@ app.use(methodOverride((req, res) => {
 app.use(express.static('public'))
 app.set('view engine', 'pug')
 
-// Our Database (in memory)
-var contactsDB = {
-  'rob-jackiewicz': {
-    name: 'Robert Jackiewicz',
-    slug: 'rob-jackiewicz',
-    email: 'rob@jackiewicz.ca'
-  },
-  'jane-doe': {
-    name: 'Jane Doe',
-    slug: 'jane-doe',
-    email: 'jane@example.com'
+// Our Database (in memory from a file)
+var contactsDB = {}
+
+// Parse the CSV File
+csv.parse(fs.readFileSync('contacts.csv'), {columns: true, autoparse: true}, (err, output) => {
+  output.forEach( x => {
+    contactsDB[x.slug] = x
+  })
+
+  // Start the Server
+  app.listen(PORT, () => {
+    console.log(`App running on port ${PORT} and ready to receive clients.`)
+  })
+})
+
+function writeMemoryToFile(cb) {
+  var fileOutput = []
+  for(let contactKey in contactsDB) {
+    fileOutput.push(contactsDB[contactKey])
   }
+
+  csv.stringify(fileOutput, (err, output) => {
+    output = `name,email,slug\n${output}`
+    fs.writeFile('addresses-new.csv', output, (err) => {
+      cb()
+    })
+  })
 }
 
 app.get('/', (req, res) => {
@@ -58,12 +77,15 @@ app.post('/contacts', (req, res) => {
   contact.slug = slug(contact.name.toLowerCase())
 
   contactsDB[contact.slug] = contact
-  res.redirect(`/contracts/${contact.slug}`)
+
+  // write to CSV file
+  writeMemoryToFile( () => {
+    res.redirect(`/contacts/${contact.slug}`)
+  })
 })
 
 app.get('/contacts/:id', (req, res) => {
   var contact = contactsDB[req.params.id]
-  debugger
   res.render('show', {contact})
 })
 
@@ -75,14 +97,16 @@ app.get('/contacts/:id/edit', (req, res) => {
 app.put('/contacts/:id', (req, res) => {
   var contact = contactsDB[req.params.id]
   contactsDB[contact.slug] = Object.assign({}, contact, req.body)
-  res.redirect(`/contacts/${contact.slug}`)
+
+  writeMemoryToFile( () => {
+    res.redirect(`/contacts/${contact.slug}`)
+  })
 })
 
 app.delete('/contacts/:id', (req, res) => {
   delete contactsDB[req.params.id]
-  res.redirect('/')
-})
 
-app.listen(PORT, () => {
-  console.log(`App running on port ${PORT} and ready to receive clients.`)
+  writeMemoryToFile( () => {
+    res.redirect('/')
+  })
 })
