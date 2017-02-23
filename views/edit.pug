@@ -1,0 +1,19 @@
+extends layout
+
+block content
+
+  .row
+    .col-sm-6.col-sm-offset-3
+      h1 Edit #{contact.name}
+      
+      form(action=`/contacts/${contact.slug}` method="POST")
+        input(type="hidden" name="_method" value="PUT")
+        
+        .form-group
+          label(for="name") Name
+          input.form-control(type="text" name="name" value=contact.name)
+        .form-group
+          label(for="email") Email
+          input.form-control(type="email" name="email" value=contact.email)
+        .form-group
+          button.btn(type="submit") Update Contact

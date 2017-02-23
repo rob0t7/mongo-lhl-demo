@@ -1,0 +1,22 @@
+extends layout
+
+block content
+  h1 Address Book
+  
+  table.table.table-hover
+    thead
+      tr
+        th Name
+        th Email
+        th
+    tbody
+      each contact in contactsDB
+        tr
+          td #{contact.name}
+          td #{contact.email}
+          td 
+            a.btn(href=`/contacts/${contact.slug}`) View
+            a.btn(href=`/contacts/${contact.slug}/edit`) Edit
+            form(action=`/contacts/${contact.slug}` method="POST")
+              input(type="hidden" name="_method" value="DELETE")
+              button.btn(type="submit") DELETE
