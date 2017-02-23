@@ -1,0 +1,17 @@
+extends layout
+
+block content
+
+  .row
+    .col-md-6.col-md-offset-3
+      h1 New Contact
+
+      form(action="/contacts" method="POST")
+        .form-group
+          label(for="contact-name") Name
+          input#contact-name.form-control(type="text" name="name")
+        .form-group
+          label(for="contact-email") Email Address
+          input#contact-email.form-control(type="email" name="email")
+        .form-group
+          button.primary-btn.btn(type="submit") Create Contact

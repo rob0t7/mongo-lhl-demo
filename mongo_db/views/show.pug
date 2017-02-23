@@ -1,0 +1,12 @@
+extends layout
+
+block content
+  h1 #{contact.name}
+  
+  div
+    a.btn(href=`/contacts/${contact.slug}/edit`) Edit
+  dl
+    dt Name
+    dd #{contact.name}
+    dt Email Address
+    dd #{contact.email}
