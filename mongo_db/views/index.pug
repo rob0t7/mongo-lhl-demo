@@ -15,8 +15,8 @@ block content
           td #{contact.name}
           td #{contact.email}
           td 
-            a.btn(href=`/contacts/${contact.slug}`) View
-            a.btn(href=`/contacts/${contact.slug}/edit`) Edit
-            form(action=`/contacts/${contact.slug}` method="POST")
+            a.btn(href=`/contacts/${contact.uuid}`) View
+            a.btn(href=`/contacts/${contact.uuid}/edit`) Edit
+            form(action=`/contacts/${contact.uuid}` method="POST")
               input(type="hidden" name="_method" value="DELETE")
               button.btn(type="submit") DELETE

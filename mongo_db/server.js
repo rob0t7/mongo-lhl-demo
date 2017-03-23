@@ -43,52 +43,59 @@ MongoClient.connect(mongoURL, (err, dbConnection) => {
   app.listen(PORT, () => {
     console.log(`App running on port ${PORT} and ready to receive clients.`)
   })
-})
 
-app.get('/', (req, res) => {
-  db.collection('contacts').find({}).toArray( (err, contactsDB) => {
-    res.render('index', {contactsDB})
+  const ContactsDataHelpers = require('./ContactsDataHelpers')(db)
+  const contactRoutes = require('./routes/contacts')(ContactsDataHelpers)
+  app.use('/contacts', contactRoutes)
+  app.get('/', (req, res) => {
+    res.redirect('/contacts')
   })
 })
 
-app.get('/contacts', (req, res) => {
-  db.collection('contacts').find({}).toArray( (err, contactsDB) => {
-    res.render('index', {contactsDB})
-  })
-})
-
-app.get('/contacts/new', (req, res) => {
-  res.render('new')
-})
-
-app.post('/contacts', (req, res) => {
-  var contact = req.body
-  contact.slug = slug(contact.name.toLowerCase())
-  db.collection('contacts').insert(contact, (err, output) => {
-    res.redirect(`/contacts/${contact.slug}`)
-  })
-})
-
-app.get('/contacts/:id', (req, res) => {
-  db.collection('contacts').findOne({slug: req.params.id}, (err, contact) => {
-    res.render('show', {contact})
-  })
-})
-
-app.get('/contacts/:id/edit', (req, res) => {
-  db.collection('contacts').findOne({slug: req.params.id}, (err, contact) => {
-    res.render('edit', {contact})
-  })
-})
-
-app.put('/contacts/:id', (req, res) => {
-  db.collection('contacts').updateOne({slug: req.params.id}, { $set: req.body}, (err, output) => {
-    res.redirect(`/contacts/${req.params.id}`)
-  })
-})
-
-app.delete('/contacts/:id', (req, res) => {
-  db.collection('contacts').deleteOne({slug: req.params.id}, (err, output) => {
-    res.redirect('/')
-  })
-})
+/* app.get('/', (req, res) => {
+ *   db.collection('contacts').find({}).toArray( (err, contactsDB) => {
+ *     res.render('index', {contactsDB})
+ *   })
+ * })
+ *
+ * app.get('/contacts', (req, res) => {
+ *   db.collection('contacts').find({}).toArray( (err, contactsDB) => {
+ *     res.render('index', {contactsDB})
+ *   })
+ * })
+ *
+ * app.get('/contacts/new', (req, res) => {
+ *   res.render('new')
+ * })
+ *
+ * app.post('/contacts', (req, res) => {
+ *   var contact = req.body
+ *   contact.slug = slug(contact.name.toLowerCase())
+ *   db.collection('contacts').insert(contact, (err, output) => {
+ *     res.redirect(`/contacts/${contact.slug}`)
+ *   })
+ * })
+ *
+ * app.get('/contacts/:id', (req, res) => {
+ *   db.collection('contacts').findOne({slug: req.params.id}, (err, contact) => {
+ *     res.render('show', {contact})
+ *   })
+ * })
+ *
+ * app.get('/contacts/:id/edit', (req, res) => {
+ *   db.collection('contacts').findOne({slug: req.params.id}, (err, contact) => {
+ *     res.render('edit', {contact})
+ *   })
+ * })
+ *
+ * app.put('/contacts/:id', (req, res) => {
+ *   db.collection('contacts').updateOne({slug: req.params.id}, { $set: req.body}, (err, output) => {
+ *     res.redirect(`/contacts/${req.params.id}`)
+ *   })
+ * })
+ *
+ * app.delete('/contacts/:id', (req, res) => {
+ *   db.collection('contacts').deleteOne({slug: req.params.id}, (err, output) => {
+ *     res.redirect('/')
+ *   })
+ * })*/
